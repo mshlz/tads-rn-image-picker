@@ -1,20 +1,34 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-gesture-handler';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { NavigationContainer } from "@react-navigation/native"
+import { BookListScreen } from "./src/screens/BookListScreen"
+import { BasicImagePickerScreen } from "./src/screens/BasicImagePickerScreen"
+import { useEffect, useState } from 'react';
+import { Database } from './src/db/Database';
+import { ActivityIndicator, ActivityIndicatorComponent, StyleSheet, Text, View } from 'react-native';
+import { BookFormScreen } from './src/screens/BookFormScreen';
+import { LoadingOverlay } from './src/components/LoadingOverlay';
+
+const Drawer = createDrawerNavigator();
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+  const [isLoading, setIsLoading] = useState(true)
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  useEffect(() => {
+    Database.initDb().then(() => setIsLoading(false))
+  }, [])
+
+  if (isLoading) {
+    return <LoadingOverlay />
+  }
+
+  return (
+    <NavigationContainer>
+      <Drawer.Navigator initialRouteName="Book Form">
+        <Drawer.Screen name="Book Form" component={BookFormScreen} />
+        <Drawer.Screen name="Book List" component={BookListScreen} />
+        <Drawer.Screen name="Basic" component={BasicImagePickerScreen} />
+      </Drawer.Navigator>
+    </NavigationContainer>
+  )
+}
